@@ -1,0 +1,194 @@
+{% extends 'index.html' %}
+{% load custom_filters %}  <!-- Load the custom filter -->
+
+{% block content %}
+<section class="py-5">
+    <div class="container px-4 px-lg-5 mt-5">
+        <!-- Stylish Message -->
+        <div class="alert alert-info text-center" style="background-color: #f8f9fa; border: 1px solid #d6d8db; border-radius: 10px; padding: 20px; margin-bottom: 30px;">
+            <h2 class="mb-3" style="font-family: 'Pacifico', cursive; color: #343a40;">Your order is being prepared!</h2>
+            <p class="lead" style="font-family: 'Roboto', sans-serif; color: #6c757d;">
+                Your delicious drink will be at your table within the next <strong>7 minutes</strong>. 
+                Sit back, relax, and enjoy the beach vibes! 🌊🍹
+            </p>
+        </div>
+
+        <!-- Order Table with Vintage Style -->
+        <div class="table-responsive vintage-bill">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col"></th>
+                        <th scope="col">Drink</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Total</th>
+                        <th scope="col">Actions</th>  <!-- New column for actions -->
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orderslist %}
+                    <tr>
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>{{ order.product.product.product_name }}</td>  <!-- Access product name through product relationship -->
+                        <td>₹{{ order.product.product.price }}</td>  <!-- Access price through product relationship -->
+                        <td>{{ order.quantity }}</td>  <!-- Access quantity from Orders model -->
+                        <td>₹{{ order.product.product.price|mul:order.quantity }}</td>  <!-- Use the custom filter -->
+                        <td>
+                            <!-- Remove Button -->
+                            <a href="{% url 'orderdelete_view' order.id %}" class="btn btn-danger btn-sm">Remove</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4" class="text-end fw-bold">Total Bill</td>
+                        <td colspan="2" class="fw-bold">₹{{ total_bill }}</td>  <!-- Display total bill -->
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <!-- Razorpay Payment Button -->
+        
+
+        <!-- Big Classy Button for Daily Hunt -->
+        <div class="text-center mt-5">
+            <a href="https://www.dailyhunt.in/" target="_blank" class="btn btn-primary btn-lg" style="width: 100%; max-width: 600px; padding: 20px; font-size: 24px; border-radius: 10px;">
+                Meanwhile, your drink is being prepared. Go check out today's top headlines! 📰
+            </a>
+        </div>
+
+        <div class="text-center mt-5">
+            <button id="rzp-button" class="btn btn-warning btn-lg" style="width: 100%; max-width: 600px; padding: 20px; font-size: 24px; border-radius: 10px;">
+                Proceed to Payment
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- Include Razorpay JavaScript SDK -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<!-- Custom JavaScript for Razorpay Payment -->
+<script>
+    document.getElementById('rzp-button').onclick = function(e){
+        var options = {
+            "key": "{{ razorpay_key }}", // Enter the Key ID generated from the Dashboard
+            "amount": "{{ total_bill }}", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise or ₹500.
+            "currency": "{{ currency }}",
+            "name": "{{ company_name }}",
+            "description": "Payment for your order",
+            "image": "https://example.com/your_logo", // Replace with your logo URL
+            "handler": function (response){
+                alert(response.razorpay_payment_id);
+                alert('Payment Successful');
+                // You can redirect the user to a success page or perform other actions here
+            },
+            "prefill": {
+                "name": "{{ request.user.get_full_name }}",
+                "email": "{{ request.user.email }}",
+                "contact": "9999999999" // Replace with the user's contact number
+            },
+            "theme": {
+                "color": "#3399cc"
+            }
+        };
+        var rzp1 = new Razorpay(options);
+        rzp1.open();
+        e.preventDefault();
+    }
+</script>
+
+<!-- Custom CSS for Stylish Design -->
+<style>
+    body {
+        font-family: 'Roboto', sans-serif;
+    }
+    h2 {
+        font-family: 'Pacifico', cursive;
+        color: #343a40;
+    }
+    .alert-info {
+        background-color: #f8f9fa;
+        border: 1px solid #d6d8db;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+
+    /* Vintage Bill Style */
+    .vintage-bill {
+        background-color: #f5f5dc; /* Parchment-like background */
+        border: 2px solid #8b4513; /* Rustic border */
+        border-radius: 10px;
+        padding: 20px;
+        font-family: 'Courier New', Courier, monospace; /* Serif font for vintage look */
+        color: #4b3621; /* Dark brown text */
+    }
+    .vintage-bill table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .vintage-bill th, .vintage-bill td {
+        border: 1px solid #8b4513; /* Rustic border */
+        padding: 10px;
+        text-align: center;
+    }
+    .vintage-bill th {
+        background-color: #8b4513; /* Rustic header background */
+        color: white; /* White text for header */
+    }
+    .vintage-bill tbody tr:hover {
+        background-color: #e6d5b8; /* Light brown hover effect */
+    }
+    .vintage-bill tfoot {
+        background-color: #8b4513; /* Rustic footer background */
+        color: white; /* White text for footer */
+    }
+
+    /* Button Styles */
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+    .btn-danger:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+    }
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        font-family: 'Roboto', sans-serif;
+        font-size: 24px;
+        padding: 20px;
+        border-radius: 10px;
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #004085;
+    }
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+        font-family: 'Roboto', sans-serif;
+        font-size: 24px;
+        padding: 20px;
+        border-radius: 10px;
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .btn-success:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+    }
+</style>
+
+<!-- Google Fonts for Stylish Text -->
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+{% endblock %}

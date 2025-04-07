@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta1/css/bootstrap.min.css"
+    />
+
+    <!-- Font Awesome Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"
+    />
+
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+        .table {
+            margin-top: 20px;
+            width: 100%;
+        }
+        .table thead th {
+            background-color: #007bff;
+            color: #ffffff;
+            position: sticky;
+            top: 0;
+        }
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(0, 123, 255, 0.05);
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+        .status-pending {
+            color: #ffc107;
+        }
+        .status-completed {
+            color: #28a745;
+        }
+        .status-cancelled {
+            color: #dc3545;
+        }
+        .navbar {
+            background-color: #343a40;
+        }
+        .navbar-brand, .navbar-nav .nav-link {
+            color: white !important;
+        }
+        .dropdown-menu {
+            min-width: 150px;
+        }
+    </style>
+
+    <title>Kitchen Orders</title>
+</head>
+<body>
+    <!-- Navbar with Dropdown Menu -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Admin Panel</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown">
+                            Profile
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                            <li><a class="dropdown-item" href="{% url 'login_view' %}">Login</a></li>
+                            <li><a class="dropdown-item" href="{% url 'register_view' %}">Register</a></li>
+                            <li><a class="dropdown-item" href="{% url 'logout_view' %}">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Kitchen Orders</h1>
+        <table class="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Table No</th>
+                <th>Update</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for i in orders %}
+              <tr>
+                <td>{{ i.id }}</td>
+                <td>{{ i.product.product.product_name }}</td>
+                <td>{{ i.product.quantity }}</td>
+                <td class="status-text">Order Placed</td>
+                <td>{{ i.date }}</td>
+                <td>{{ i.table_No }}</td>
+                <td>
+                    <button class="btn btn-success btn-sm update-btn">
+                        <i class="fas fa-check"></i> Done
+                    </button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- JavaScript for Button Click -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll(".update-btn").forEach(button => {
+                button.addEventListener("click", function() {
+                    let statusText = this.closest("tr").querySelector(".status-text");
+                    if (statusText.innerText === "Order Placed") {
+                        statusText.innerText = "Order Prepared";
+                        statusText.classList.remove("status-pending");
+                        statusText.classList.add("status-completed");
+                    }
+                });
+            });
+        });
+    </script>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta1/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
